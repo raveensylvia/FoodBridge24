@@ -1,0 +1,134 @@
+.dashboard-container {
+  padding: 40px 0;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  color: #1b5e20;
+}
+
+.donation-form {
+  margin-bottom: 40px;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.map-picker-container {
+  margin: 20px 0;
+}
+
+.map-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  margin-top: 10px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.donations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.donation-card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+}
+
+.d-info h4 {
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.d-addr {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.d-status {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+}
+
+.status-pill.pending { background: #9e9e9e; }
+.status-pill.accepted { background: #2196f3; }
+.status-pill.assigned { background: #ff9800; }
+.status-pill.picked { background: #673ab7; }
+.status-pill.delivered { background: #4caf50; }
+
+/* NGO Dashboard specific */
+.ngo-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 30px;
+}
+
+.map-main {
+  height: 600px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.sidebar-title {
+  margin-bottom: 20px;
+  color: #1b5e20;
+}
+
+.available-list {
+  max-height: 600px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mini-card {
+  padding: 15px;
+}
+
+.mini-card h5 {
+  margin-bottom: 5px;
+}
+
+@media (max-width: 992px) {
+  .ngo-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}

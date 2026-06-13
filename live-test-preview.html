@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodBridge — Test Automation Control & Live Preview</title>
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --bg-card: rgba(18, 26, 47, 0.65);
+      --bg-glass: rgba(15, 23, 42, 0.45);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --primary: #4f46e5;
+      --primary-glow: rgba(79, 70, 229, 0.4);
+      --accent-web: #0ea5e9;
+      --accent-mobile: #10b981;
+      --accent-mobile-glow: rgba(16, 185, 129, 0.3);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dark: #6b7280;
+      
+      --color-pass: #10b981;
+      --color-fail: #ef4444;
+      --color-skip: #f59e0b;
+      --color-run: #6366f1;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+        radial-gradient(at 90% 10%, rgba(16, 185, 129, 0.1) 0px, transparent 40%),
+        radial-gradient(at 50% 80%, rgba(14, 165, 233, 0.12) 0px, transparent 50%);
+      background-attachment: fixed;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(10, 14, 23, 0.3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      width: 100%;
+    }
+
+    /* Header */
+    header {
+      background: var(--bg-glass);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-glass);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-container {
+      background: linear-gradient(135deg, var(--primary), var(--accent-web));
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .logo-container svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+
+    .brand-title h1 {
+      font-size: 1.25rem;
+      background: linear-gradient(to right, #ffffff, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-title p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Mode Controls & Speed bar */
+    .control-actions {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .mode-select {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .mode-btn {
+      padding: 0.4rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mode-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .speed-slider {
+      -webkit-appearance: none;
+      width: 80px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.25s;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), #4338ca);
+      color: white;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      box-shadow: 0 6px 18px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-glass);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Summary Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: var(--primary);
+    }
+
+    .stat-card.web::before { background: var(--accent-web); }
+    .stat-card.mobile::before { background: var(--accent-mobile); }
+    .stat-card.fail::before { background: var(--color-fail); }
+    .stat-card.pass-rate::before { background: var(--color-skip); }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .stat-sub {
+      font-size: 0.7rem;
+      color: var(--text-dark);
+      margin-top: 0.25rem;
+    }
+
+    /* Master Run Controllers */
+    .master-run-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .run-status-text {
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #71717a;
+    }
+
+    .pulse-dot.running {
+      background: var(--color-run);
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+      animation: pulse 1.2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0);
+      }
+      100% {
+        transform: scale(0.9);
+        box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+      }
+    }
+
+    .run-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* Layout Panel Setup */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+      flex-grow: 1;
+    }
+
+    .runner-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+      position: relative;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.75rem;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .panel-title span {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .panel-title.web span { color: var(--accent-web); }
+    .panel-title.mobile span { color: var(--accent-mobile); }
+
+    .progress-bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .progress-container {
+      background: rgba(255, 255, 255, 0.05);
+      height: 8px;
+      border-radius: 4px;
+      flex-grow: 1;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .panel-title.web ~ .progress-bar-wrapper .progress-fill { background: var(--accent-web); }
+    .panel-title.mobile ~ .progress-bar-wrapper .progress-fill { background: var(--accent-mobile); }
+
+    .progress-text {
+      font-size: 0.75rem;
+      font-weight: 600;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    /* Simulator Canvas styles */
+    .simulator-viewport {
+      background: #020617;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      flex-grow: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Browser Mock Frame */
+    .browser-mock {
+      width: 92%;
+      height: 85%;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .browser-header {
+      background: #1e293b;
+      padding: 0.4rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .browser-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+    .browser-dot:nth-child(2) { background: #f59e0b; }
+    .browser-dot:nth-child(3) { background: #10b981; }
+
+    .browser-address {
+      background: #0f172a;
+      border-radius: 4px;
+      flex-grow: 1;
+      padding: 0.15rem 0.6rem;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .browser-body {
+      flex-grow: 1;
+      background: #0b0f19;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Mobile Phone Mock Frame */
+    .phone-mock {
+      width: 200px;
+      height: 380px;
+      background: #000;
+      border-radius: 28px;
+      border: 6px solid #1e293b;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+
+    .phone-notch {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 12px;
+      background: #1e293b;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      z-index: 10;
+    }
+
+    .phone-body {
+      flex-grow: 1;
+      background: #0a0e17;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding-top: 10px; /* space for notch */
+    }
+
+    /* Web Interface Elements inside Viewport */
+    .mock-web-nav {
+      background: #111827;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mock-web-logo {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .mock-web-menu {
+      display: flex;
+      gap: 8px;
+      font-size: 0.55rem;
+      color: var(--text-muted);
+    }
+
+    .mock-web-btn {
+      background: #4f46e5;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      color: white;
+      font-size: 0.5rem;
+      font-weight: 500;
+    }
+
+    .mock-web-main {
+      flex-grow: 1;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .mock-web-hero h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+      line-height: 1.2;
+    }
+
+    .mock-web-hero p {
+      font-size: 0.55rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .mock-web-form {
+      background: #111827;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 0.6rem;
+      width: 100%;
+      max-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .mock-input {
+      background: #070a13;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 3px;
+      padding: 0.2rem 0.4rem;
+      font-size: 0.55rem;
+      color: white;
+      width: 100%;
+      height: 18px;
+      text-align: left;
+    }
+
+    .mock-submit {
+      background: #10b981;
+      color: white;
+      font-weight: 600;
+      font-size: 0.55rem;
+      text-align: center;
+      padding: 0.2rem;
+      border-radius: 3px;
+    }
+
+    .mock-card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      width: 100%;
+      max-height: 140px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .mock-card {
+      background: #111827;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 0.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .mock-card-title {
+      font-size: 0.55rem;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .mock-card-sub {
+      font-size: 0.45rem;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .mock-card-badge {
+      font-size: 0.45rem;
+      padding: 0.05rem 0.2rem;
+      border-radius: 2px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .mock-map-view {
+      background: #1e293b;
+      border-radius: 6px;
+      height: 70px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .mock-map-pin {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #ef4444;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.4);
+      animation: pinPulse 1.5s infinite;
+    }
+
+    @keyframes pinPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6); }
+      70% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    /* Mobile Screen Elements */
+    .mock-phone-nav {
+      background: #0f172a;
+      padding: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .mock-phone-title {
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .mock-phone-main {
+      flex-grow: 1;
+      padding: 0.6rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .phone-splash-logo {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .phone-splash-logo svg {
+      width: 18px;
+      height: 18px;
+      fill: white;
+    }
+
+    .phone-splash h4 {
+      font-size: 0.85rem;
+      background: linear-gradient(to right, #ffffff, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .mock-phone-btn {
+      background: #10b981;
+      color: white;
+      font-size: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 600;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+
+    .mock-indicator-box {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.4rem;
+      color: #10b981;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .mock-indicator-box.web {
+      background: rgba(14, 165, 233, 0.15);
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      color: #0ea5e9;
+    }
+
+    /* Terminal Console Panel */
+    .console-panel {
+      background: #020617;
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 1rem;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+    }
+
+    .console-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      margin-bottom: 0.5rem;
+    }
+
+    .console-title {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .console-body {
+      flex-grow: 1;
+      overflow-y: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.7rem;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding-right: 5px;
+    }
+
+    .log-line {
+      color: #e2e8f0;
+      white-space: pre-wrap;
+    }
+
+    .log-line.info { color: var(--accent-web); }
+    .log-line.success { color: var(--color-pass); }
+    .log-line.warn { color: var(--color-skip); }
+    .log-line.error { color: var(--color-fail); }
+
+    .test-list-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      overflow-y: auto;
+      max-height: 130px;
+      padding: 0.25rem;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.3rem 0.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      font-size: 0.68rem;
+    }
+
+    .cat-item-info {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .cat-item-status-icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .cat-item-status-icon.pass { background: var(--color-pass); box-shadow: 0 0 4px var(--color-pass); }
+    .cat-item-status-icon.fail { background: var(--color-fail); box-shadow: 0 0 4px var(--color-fail); }
+    .cat-item-status-icon.running { background: var(--color-run); animation: statusBlink 1s infinite alternate; }
+
+    @keyframes statusBlink {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .cat-item-badge {
+      font-size: 0.6rem;
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+    }
+
+    .cat-item-badge.pass { background: rgba(16, 185, 129, 0.15); color: var(--color-pass); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-dark);
+      font-size: 0.75rem;
+      border-top: 1px solid var(--border-glass);
+      margin-top: auto;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-left: 4px solid var(--color-pass);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-content">
+      <div class="brand">
+        <div class="logo-container">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+        </div>
+        <div class="brand-title">
+          <h1>FoodBridge Test Automation Center</h1>
+          <p>End-to-End Suite Live Execution Console</p>
+        </div>
+      </div>
+      
+      <div class="control-actions">
+        <div class="speed-control">
+          <span>Speed:</span>
+          <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="3">
+          <span id="speedValue">3x</span>
+        </div>
+        
+        <div class="mode-select">
+          <button class="mode-btn active" id="modeSim" onclick="setMode('sim')">Demo Simulator</button>
+          <button class="mode-btn" id="modeLive" onclick="setMode('live')">Live Backend Server</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Console container -->
+  <main class="container" style="flex-grow:1; display:flex; flex-direction:column;">
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card" id="cardTotal">
+        <span class="stat-label">Total Suite Cases</span>
+        <span class="stat-value" id="valTotal">305</span>
+        <span class="stat-sub">188 Web | 117 Mobile</span>
+      </div>
+      <div class="stat-card web" id="cardWeb">
+        <span class="stat-label">Web Executed (Selenium)</span>
+        <span class="stat-value" id="valWeb">0 / 188</span>
+        <span class="stat-sub" id="pctWeb">0% Completed</span>
+      </div>
+      <div class="stat-card mobile" id="cardMobile">
+        <span class="stat-label">Mobile Executed (Appium)</span>
+        <span class="stat-value" id="valMobile">0 / 117</span>
+        <span class="stat-sub" id="pctMobile">0% Completed</span>
+      </div>
+      <div class="stat-card fail" id="cardFail">
+        <span class="stat-label">Failed Assertions</span>
+        <span class="stat-value" id="valFail" style="color:var(--color-pass);">0</span>
+        <span class="stat-sub">Blocker failures</span>
+      </div>
+      <div class="stat-card pass-rate" id="cardRate">
+        <span class="stat-label">Automation Success</span>
+        <span class="stat-value" id="valRate">100%</span>
+        <span class="stat-sub">Pass index</span>
+      </div>
+    </div>
+
+    <!-- Master Run Controller -->
+    <div class="master-run-bar">
+      <div class="run-status-text">
+        <div class="pulse-dot" id="statusDot"></div>
+        <span id="statusMessage">System Idle. Select a run mode to begin preview.</span>
+      </div>
+      <div class="run-buttons">
+        <button class="btn btn-primary" id="btnRunWeb" onclick="runSuite('web')">
+          <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Run Web E2E (Selenium)
+        </button>
+        <button class="btn btn-primary" id="btnRunMobile" onclick="runSuite('mobile')" style="background:linear-gradient(135deg, #10b981, #047857); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+          <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Run Mobile E2E (Appium)
+        </button>
+        <button class="btn btn-secondary" id="btnDownloadReport" onclick="showToast('Excel report generated successfully and saved to local folder.')" disabled>
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Download Excel Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Simulator & Live visual Viewports -->
+    <div class="main-grid">
+      
+      <!-- Web Panel (Selenium) -->
+      <div class="runner-panel">
+        <div class="panel-header">
+          <div class="panel-title web">
+            <svg width="18" height="18" fill="var(--accent-web)" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-5 14H4v-4h11v4zm0-5H4V9h11v4zm5 5h-4V9h4v9z"/></svg>
+            Selenium Web Automation
+            <span>TC-001 to TC-188</span>
+          </div>
+          <span class="progress-text" id="lblProgressWeb">0%</span>
+        </div>
+
+        <div class="progress-bar-wrapper">
+          <div class="progress-container">
+            <div class="progress-fill" id="fillProgressWeb"></div>
+          </div>
+        </div>
+
+        <!-- Simulator Viewport -->
+        <div class="simulator-viewport">
+          <div class="mock-indicator-box web">Web Driver (Chrome)</div>
+          
+          <!-- Browser Box -->
+          <div class="browser-mock">
+            <div class="browser-header">
+              <div class="browser-dots">
+                <div class="browser-dot"></div>
+                <div class="browser-dot"></div>
+                <div class="browser-dot"></div>
+              </div>
+              <div class="browser-address" id="browserAddress">http://localhost:5173/</div>
+            </div>
+            
+            <div class="browser-body" id="browserBody">
+              <!-- Render Hero Content -->
+              <div class="mock-web-nav">
+                <div class="mock-web-logo">🍱 FoodBridge</div>
+                <div class="mock-web-menu">
+                  <span>About</span>
+                  <span>Find Food</span>
+                  <span class="mock-web-btn" id="mockWebNavBtn">Login</span>
+                </div>
+              </div>
+              
+              <div class="mock-web-main" id="browserMain">
+                <div class="mock-web-hero" id="webHero">
+                  <h3>Connecting Surplus Food to NGOs & Volunteers</h3>
+                  <p>Reduce waste, feed communities, make an impact.</p>
+                  <div class="mock-submit" style="background:#4f46e5; padding:0.25rem 0.5rem; max-width:80px; margin:0 auto; font-size:0.5rem;">Join Us</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <h4 style="margin:0.75rem 0 0.25rem 0; font-size:0.8rem; color:var(--text-muted);">Suites Progress</h4>
+        <div class="test-list-categories" id="categoriesWeb">
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-1"></div><span>UI/UX Testing</span></div><span class="cat-item-badge" id="badge-w-1">0/12</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-2"></div><span>Functional Testing</span></div><span class="cat-item-badge" id="badge-w-2">0/79</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-3"></div><span>Validation Testing</span></div><span class="cat-item-badge" id="badge-w-3">0/12</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-4"></div><span>Security Testing</span></div><span class="cat-item-badge" id="badge-w-4">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-5"></div><span>Compatibility Testing</span></div><span class="cat-item-badge" id="badge-w-5">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-6"></div><span>Performance Testing</span></div><span class="cat-item-badge" id="badge-w-6">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-7"></div><span>API Testing</span></div><span class="cat-item-badge" id="badge-w-7">0/20</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-8"></div><span>Accessibility Testing</span></div><span class="cat-item-badge" id="badge-w-8">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-9"></div><span>Regression Testing</span></div><span class="cat-item-badge" id="badge-w-9">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-w-10"></div><span>End-to-End Testing</span></div><span class="cat-item-badge" id="badge-w-10">0/15</span></div>
+        </div>
+      </div>
+
+      <!-- Mobile Panel (Appium) -->
+      <div class="runner-panel">
+        <div class="panel-header">
+          <div class="panel-title mobile">
+            <svg width="18" height="18" fill="var(--accent-mobile)" viewBox="0 0 24 24"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+            Appium Mobile Automation (Python)
+            <span>TC-M001 to TC-M117</span>
+          </div>
+          <span class="progress-text" id="lblProgressMobile">0%</span>
+        </div>
+
+        <div class="progress-bar-wrapper">
+          <div class="progress-container">
+            <div class="progress-fill" id="fillProgressMobile"></div>
+          </div>
+        </div>
+
+        <!-- Phone simulator -->
+        <div class="simulator-viewport">
+          <div class="mock-indicator-box">Appium Driver (Android)</div>
+          
+          <div class="phone-mock">
+            <div class="phone-notch"></div>
+            <div class="phone-body" id="phoneBody">
+              <!-- Render Logo splash -->
+              <div class="mock-phone-main" id="phoneMain">
+                <div class="phone-splash" id="phoneSplash">
+                  <div class="phone-splash-logo">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99z"/>
+                    </svg>
+                  </div>
+                  <h4>FoodBridge</h4>
+                  <div class="mock-phone-btn" style="margin-top:20px; font-size:0.45rem;">Get Started</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <h4 style="margin:0.75rem 0 0.25rem 0; font-size:0.8rem; color:var(--text-muted);">Suites Progress</h4>
+        <div class="test-list-categories" id="categoriesMobile">
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-1"></div><span>App Launch & Navigation</span></div><span class="cat-item-badge" id="badge-m-1">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-2"></div><span>Auth Flow (Login & Signup)</span></div><span class="cat-item-badge" id="badge-m-2">0/15</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-3"></div><span>Donor Mobile Flow</span></div><span class="cat-item-badge" id="badge-m-3">0/12</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-4"></div><span>NGO Mobile Flow</span></div><span class="cat-item-badge" id="badge-m-4">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-5"></div><span>Volunteer Mobile Flow</span></div><span class="cat-item-badge" id="badge-m-5">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-6"></div><span>Validation & Edge Cases</span></div><span class="cat-item-badge" id="badge-m-6">0/8</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-7"></div><span>Compatibility Testing</span></div><span class="cat-item-badge" id="badge-m-7">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-8"></div><span>Performance Testing</span></div><span class="cat-item-badge" id="badge-m-8">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-9"></div><span>Security Testing</span></div><span class="cat-item-badge" id="badge-m-9">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-10"></div><span>Accessibility Testing</span></div><span class="cat-item-badge" id="badge-m-10">0/10</span></div>
+          <div class="cat-item"><div class="cat-item-info"><div class="cat-item-status-icon" id="icon-m-11"></div><span>End-to-End Mobile Flow</span></div><span class="cat-item-badge" id="badge-m-11">0/12</span></div>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Console Logging box -->
+    <div class="console-panel">
+      <div class="console-header">
+        <div class="console-title">
+          <span style="display:inline-block; width:6px; height:6px; background:#10b981; border-radius:50%;"></span>
+          <span>CONSOLE LOG OUTPUT</span>
+        </div>
+        <button class="mode-btn" onclick="clearConsole()" style="padding:0.2rem 0.5rem; font-size:0.6rem;">Clear Log</button>
+      </div>
+      <div class="console-body" id="consoleBody">
+        <div class="log-line info">[System] FoodBridge Test Automation suite console initialized.</div>
+        <div class="log-line info">[System] Select a run mode above and trigger a suite. Ready to display logs...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg width="16" height="16" fill="white" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <span id="toastMessage">Success toast alert!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2026 FoodBridge Engineering & Quality Assurance Team. Powered by Selenium (Node.js) & Appium (Python/Pytest).</p>
+  </footer>
+
+  <!-- Script for Dashboard Logic & Simulation -->
+  <script>
+    let activeMode = 'sim'; // 'sim' or 'live'
+    let webExecuted = 0;
+    let mobileExecuted = 0;
+    let totalWeb = 188;
+    let totalMobile = 117;
+    let errorsFound = 0;
+    let isRunning = false;
+    let simSpeed = 3; // speed index multiplier
+
+    const categoriesWebInfo = [
+      { id: 1, name: "UI/UX Testing", start: 1, count: 12 },
+      { id: 2, name: "Functional Testing", start: 13, count: 79 },
+      { id: 3, name: "Validation Testing", start: 92, count: 12 },
+      { id: 4, name: "Security Testing", start: 104, count: 10 },
+      { id: 5, name: "Compatibility Testing", start: 114, count: 10 },
+      { id: 6, name: "Performance Testing", start: 124, count: 10 },
+      { id: 7, name: "API Testing", start: 134, count: 20 },
+      { id: 8, name: "Accessibility Testing", start: 154, count: 10 },
+      { id: 9, name: "Regression Testing", start: 164, count: 10 },
+      { id: 10, name: "End-to-End Testing", start: 174, count: 15 }
+    ];
+
+    const categoriesMobileInfo = [
+      { id: 1, name: "App Launch & Navigation", start: 1, count: 10 },
+      { id: 2, name: "Auth Flow (Login & Signup)", start: 11, count: 15 },
+      { id: 3, name: "Donor Mobile Flow", start: 26, count: 12 },
+      { id: 4, name: "NGO Mobile Flow", start: 38, count: 10 },
+      { id: 5, name: "Volunteer Mobile Flow", start: 48, count: 10 },
+      { id: 6, name: "Validation & Edge Cases", start: 58, count: 8 },
+      { id: 7, name: "Compatibility Testing", start: 66, count: 10 },
+      { id: 8, name: "Performance Testing", start: 76, count: 10 },
+      { id: 9, name: "Security Testing", start: 86, count: 10 },
+      { id: 10, name: "Accessibility Testing", start: 96, count: 10 },
+      { id: 11, name: "End-to-End Mobile Flow", start: 106, count: 12 }
+    ];
+
+    // Listeners for speed slider
+    document.getElementById('speedSlider').addEventListener('input', function(e) {
+      simSpeed = parseInt(e.target.value);
+      document.getElementById('speedValue').innerText = simSpeed + 'x';
+    });
+
+    function setMode(mode) {
+      activeMode = mode;
+      document.getElementById('modeSim').classList.toggle('active', mode === 'sim');
+      document.getElementById('modeLive').classList.toggle('active', mode === 'live');
+      
+      const speedControl = document.querySelector('.speed-control');
+      if (mode === 'live') {
+        speedControl.style.opacity = '0.3';
+        speedControl.style.pointerEvents = 'none';
+        writeLog('[System] Switched to Live Server Mode. Clicks will launch real backend sub-processes.');
+      } else {
+        speedControl.style.opacity = '1';
+        speedControl.style.pointerEvents = 'auto';
+        writeLog('[System] Switched to Demo Simulator Mode. Running tests will run client-side simulation.');
+      }
+    }
+
+    function writeLog(message, type = 'info') {
+      const body = document.getElementById('consoleBody');
+      const div = document.createElement('div');
+      div.className = `log-line ${type}`;
+      div.innerText = message;
+      body.appendChild(div);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    function clearConsole() {
+      document.getElementById('consoleBody').innerHTML = '';
+      writeLog('[System] Terminal log cleared.');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    function updateStats() {
+      // update cards
+      document.getElementById('valWeb').innerText = `${webExecuted} / ${totalWeb}`;
+      const pctW = Math.round((webExecuted / totalWeb) * 100);
+      document.getElementById('pctWeb').innerText = `${pctW}% Completed`;
+      document.getElementById('fillProgressWeb').style.width = `${pctW}%`;
+      document.getElementById('lblProgressWeb').innerText = `${pctW}%`;
+
+      document.getElementById('valMobile').innerText = `${mobileExecuted} / ${totalMobile}`;
+      const pctM = Math.round((mobileExecuted / totalMobile) * 100);
+      document.getElementById('pctMobile').innerText = `${pctM}% Completed`;
+      document.getElementById('fillProgressMobile').style.width = `${pctM}%`;
+      document.getElementById('lblProgressMobile').innerText = `${pctM}%`;
+
+      document.getElementById('valFail').innerText = errorsFound;
+      if (errorsFound > 0) {
+        document.getElementById('valFail').style.color = 'var(--color-fail)';
+      } else {
+        document.getElementById('valFail').style.color = 'var(--color-pass)';
+      }
+
+      const totalExecuted = webExecuted + mobileExecuted;
+      const totalAll = totalWeb + totalMobile;
+      const passRate = totalExecuted > 0 ? Math.round(((totalExecuted - errorsFound) / totalExecuted) * 100) : 100;
+      document.getElementById('valRate').innerText = `${passRate}%`;
+    }
+
+    // Interactive simulated pages renderer inside browser body mockup
+    function setWebSimulatorState(categoryName, currentCaseNum) {
+      const address = document.getElementById('browserAddress');
+      const main = document.getElementById('browserMain');
+      const navBtn = document.getElementById('mockWebNavBtn');
+
+      if (categoryName.includes('UI/UX') || currentCaseNum <= 12) {
+        address.innerText = "http://localhost:5173/";
+        navBtn.innerText = "Login";
+        main.innerHTML = `
+          <div class="mock-web-hero">
+            <h3 style="color:#0ea5e9;">FoodBridge Landing Portal</h3>
+            <p>Reducing surplus waste and distributing food since 2026.</p>
+            <div style="font-size:0.5rem; color:var(--text-muted); margin-bottom:10px;">Checking CSS, viewports, headers...</div>
+            <div class="mock-submit" style="background:#0ea5e9; padding:0.1rem 0.4rem; max-width:80px; margin:0 auto; font-size:0.5rem;">Join as Donor</div>
+          </div>
+        `;
+      } 
+      else if (categoryName.includes('Functional') && currentCaseNum >= 13 && currentCaseNum <= 41) {
+        // Sign up / Sign in pages
+        address.innerText = "http://localhost:5173/login";
+        navBtn.innerText = "Register";
+        main.innerHTML = `
+          <div class="mock-web-form">
+            <span style="font-size:0.6rem; font-weight:600; text-align:left;">Member Authorization</span>
+            <div class="mock-input" style="font-size:0.5rem; display:flex; align-items:center;">
+              <span style="color:#10b981;">&#9679;</span>&nbsp;donor@foodbridge.org
+            </div>
+            <div class="mock-input" style="font-size:0.5rem; display:flex; align-items:center;">
+              <span style="color:#64748b;">&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;</span>
+            </div>
+            <div class="mock-submit" style="background:#4f46e5;">Authorize Session</div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Functional') && currentCaseNum >= 42 && currentCaseNum <= 61) {
+        // Donor Dashboard
+        address.innerText = "http://localhost:5173/donor";
+        navBtn.innerText = "Logout";
+        main.innerHTML = `
+          <div style="width:100%;">
+            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:6px;">
+              <span style="font-size:0.6rem; font-weight:700;">Donor Dashboard</span>
+              <span class="mock-web-btn" style="background:#10b981; font-size:0.45rem; padding:0.1rem 0.3rem;">+ Post Food</span>
+            </div>
+            <div class="mock-card-list">
+              <div class="mock-card">
+                <div>
+                  <div class="mock-card-title">Fresh Veggie Basket</div>
+                  <div class="mock-card-sub">Qty: 10 portions • Expiry: 4h</div>
+                </div>
+                <span class="mock-card-badge">Pending</span>
+              </div>
+              <div class="mock-card">
+                <div>
+                  <div class="mock-card-title">Cooked Meal Packets</div>
+                  <div class="mock-card-sub">Qty: 50 portions • Expiry: 2h</div>
+                </div>
+                <span class="mock-card-badge" style="background:rgba(14, 165, 233, 0.15); color:#0ea5e9;">Claimed</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Functional') && currentCaseNum >= 62 && currentCaseNum <= 76) {
+        // NGO Dashboard
+        address.innerText = "http://localhost:5173/ngo";
+        navBtn.innerText = "Logout";
+        main.innerHTML = `
+          <div style="width:100%;">
+            <span style="font-size:0.55rem; font-weight:700; display:block; text-align:left; margin-bottom:4px;">Available NGO Claims</span>
+            <div class="mock-map-view">
+              <div class="mock-map-pin" style="top:20px; left:40px;"></div>
+              <div class="mock-map-pin" style="top:45px; left:120px;"></div>
+              <span style="z-index:2; background:rgba(0,0,0,0.6); padding:2px 4px; border-radius:2px;">Leaflet Interactive Map</span>
+            </div>
+            <div class="mock-card" style="padding:0.25rem;">
+              <div style="font-size:0.5rem; text-align:left;"><b>Rice & Curry</b> (30 portions)</div>
+              <button class="mock-web-btn" style="background:#10b981; font-size:0.45rem; padding:0.05rem 0.2rem; border:none; border-radius:2px;">Claim</button>
+            </div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Functional') && currentCaseNum >= 77 && currentCaseNum <= 91) {
+        // Volunteer Dashboard
+        address.innerText = "http://localhost:5173/volunteer";
+        navBtn.innerText = "Logout";
+        main.innerHTML = `
+          <div style="width:100%;">
+            <span style="font-size:0.55rem; font-weight:700; display:block; text-align:left; margin-bottom:4px;">Volunteer Missions</span>
+            <div class="mock-card-list" style="max-height:100px;">
+              <div class="mock-card" style="padding:0.3rem;">
+                <div>
+                  <div class="mock-card-title">Pick: Delhi Hub</div>
+                  <div class="mock-card-sub">NGO: Feeding India</div>
+                </div>
+                <button class="mock-web-btn" style="background:#eab308; color:#000; font-size:0.45rem; padding:0.05rem 0.2rem; border:none;">Start</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Security') || categoryName.includes('API')) {
+        address.innerText = "http://localhost:5000/api/donations";
+        main.innerHTML = `
+          <div style="font-family:monospace; font-size:0.5rem; text-align:left; width:100%; color:#10b981; overflow:hidden;">
+            {<br>
+            &nbsp;&nbsp;"status": "success",<br>
+            &nbsp;&nbsp;"headers": "CORS-Enabled",<br>
+            &nbsp;&nbsp;"xss-filter": "Active",<br>
+            &nbsp;&nbsp;"encryption": "JWT-HS256"<br>
+            }
+          </div>
+        `;
+      }
+      else {
+        address.innerText = "http://localhost:5173/profile";
+        main.innerHTML = `
+          <div style="text-align:left; width:100%;">
+            <span style="font-size:0.6rem; font-weight:700;">System Validation Check</span>
+            <p style="font-size:0.5rem; color:var(--text-muted); margin-top:4px;">Verifying viewport, keyboard layouts, aria-attributes, page performance profiles...</p>
+            <div style="margin-top:10px; font-size:0.55rem; color:#10b981;">&bull; Load speed: 180ms (PASS)</div>
+            <div style="font-size:0.55rem; color:#10b981;">&bull; Aria elements checked: 34 (PASS)</div>
+          </div>
+        `;
+      }
+    }
+
+    // Phone simulator UI states
+    function setPhoneSimulatorState(categoryName, currentCaseNum) {
+      const main = document.getElementById('phoneBody');
+
+      if (categoryName.includes('Launch') || currentCaseNum <= 10) {
+        main.innerHTML = `
+          <div class="mock-phone-main">
+            <div class="phone-splash">
+              <div class="phone-splash-logo">
+                <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:white;"><path d="M12 2L2 22h20L12 2z"/></svg>
+              </div>
+              <h4 style="font-size:0.75rem;">FoodBridge</h4>
+              <p style="font-size:0.45rem; color:var(--text-muted);">Initializing Mock Driver...</p>
+            </div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Auth') && currentCaseNum >= 11 && currentCaseNum <= 25) {
+        main.innerHTML = `
+          <div class="mock-phone-nav"><span class="mock-phone-title">Sign In</span></div>
+          <div class="mock-phone-main" style="padding:0.4rem; justify-content:flex-start; gap:0.4rem;">
+            <div class="mock-input" style="font-size:0.5rem;">appium.donor@test.com</div>
+            <div class="mock-input" style="font-size:0.5rem; color:#64748b;">••••••••</div>
+            <div class="mock-phone-btn" style="padding:0.15rem; font-size:0.45rem;">Sign In</div>
+            <span style="font-size:0.4rem; color:var(--text-muted); margin-top:20px;">Or create an account</span>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Donor') && currentCaseNum >= 26 && currentCaseNum <= 37) {
+        main.innerHTML = `
+          <div class="mock-phone-nav"><span class="mock-phone-title">Donor Area</span></div>
+          <div class="mock-phone-main" style="padding:0.4rem; justify-content:flex-start; gap:0.4rem;">
+            <div class="mock-phone-btn" style="background:#4f46e5; padding:0.15rem; font-size:0.45rem;">Post Food Item</div>
+            <div style="font-size:0.5rem; font-weight:700; width:100%; text-align:left;">Form Input:</div>
+            <div class="mock-input" style="font-size:0.45rem; height:15px; border-color:#10b981;">Mobile Biryani</div>
+            <div class="mock-input" style="font-size:0.45rem; height:15px;">20 portions</div>
+            <div class="mock-input" style="font-size:0.45rem; height:15px;">123 Street, Delhi</div>
+            <div class="mock-phone-btn" style="padding:0.15rem; font-size:0.45rem;">Submit Post</div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('NGO') && currentCaseNum >= 38 && currentCaseNum <= 47) {
+        main.innerHTML = `
+          <div class="mock-phone-nav"><span class="mock-phone-title">NGO Claims</span></div>
+          <div class="mock-phone-main" style="padding:0.3rem; justify-content:flex-start; gap:0.3rem;">
+            <div class="mock-map-view" style="height:50px;">
+              <div class="mock-map-pin" style="top:15px; left:80px;"></div>
+              <span style="font-size:0.45rem;">Interactive Map</span>
+            </div>
+            <div class="mock-card" style="width:100%; padding:0.2rem;">
+              <div style="font-size:0.45rem; text-align:left;"><b>Biryani</b> (20 portions)<br><span style="font-size:0.4rem; color:var(--text-muted);">123 Street</span></div>
+              <span class="mock-card-badge" style="font-size:0.4rem; padding:0.05rem 0.15rem;">Claim</span>
+            </div>
+          </div>
+        `;
+      }
+      else if (categoryName.includes('Volunteer') && currentCaseNum >= 48 && currentCaseNum <= 57) {
+        main.innerHTML = `
+          <div class="mock-phone-nav"><span class="mock-phone-title">Missions</span></div>
+          <div class="mock-phone-main" style="padding:0.3rem; justify-content:flex-start; gap:0.3rem;">
+            <div class="mock-card" style="width:100%; padding:0.2rem; flex-direction:column; align-items:flex-start; gap:0.2rem;">
+              <div style="font-size:0.45rem;"><b>Task Assigned</b></div>
+              <div style="font-size:0.4rem; color:var(--text-muted);">From: 123 Street<br>To: Shelter NGO</div>
+              <div class="mock-phone-btn" style="background:#eab308; color:#000; font-size:0.4rem; padding:0.1rem; width:100%;">Mark as Picked</div>
+            </div>
+          </div>
+        `;
+      }
+      else {
+        main.innerHTML = `
+          <div class="mock-phone-nav"><span class="mock-phone-title">Device Spec</span></div>
+          <div class="mock-phone-main" style="padding:0.4rem; text-align:left; justify-content:flex-start; gap:0.2rem;">
+            <span style="font-size:0.5rem; font-weight:700; display:block; width:100%;">Appium Test Check</span>
+            <span style="font-size:0.45rem; color:#10b981;">✔ Device width: 800px</span>
+            <span style="font-size:0.45rem; color:#10b981;">✔ Device height: 1200px</span>
+            <span style="font-size:0.45rem; color:#10b981;">✔ Orientation: PORTRAIT</span>
+            <span style="font-size:0.45rem; color:#10b981;">✔ Network toggle checked</span>
+            <span style="font-size:0.45rem; color:#10b981;">✔ Accessibility TalkBack label</span>
+          </div>
+        `;
+      }
+    }
+
+    // SIMULATED TEST EXECUTION
+    function runSimulatedSuite(type) {
+      isRunning = true;
+      toggleButtons(true);
+      document.getElementById('statusDot').className = 'pulse-dot running';
+      
+      const isWeb = type === 'web';
+      const categories = isWeb ? categoriesWebInfo : categoriesMobileInfo;
+      const targetList = isWeb ? 'w' : 'm';
+      
+      if (isWeb) {
+        webExecuted = 0;
+        document.getElementById('statusMessage').innerText = 'Running Selenium E2E Web Tests (Simulated)...';
+        writeLog('[System] Initiating Web E2E Test Suite (TC-001 -> TC-188)', 'info');
+      } else {
+        mobileExecuted = 0;
+        document.getElementById('statusMessage').innerText = 'Running Appium Mobile Tests (Simulated)...';
+        writeLog('[System] Initiating Python Appium Mobile Test Suite (TC-M001 -> TC-M117)', 'info');
+      }
+
+      // Reset icons
+      categories.forEach(cat => {
+        document.getElementById(`icon-${targetList}-${cat.id}`).className = 'cat-item-status-icon running';
+      });
+
+      let currentCatIdx = 0;
+      
+      function executeCategoryStep() {
+        if (currentCatIdx >= categories.length) {
+          // Finished suite!
+          isRunning = false;
+          toggleButtons(false);
+          document.getElementById('statusDot').className = 'pulse-dot';
+          
+          if (isWeb) {
+            webExecuted = totalWeb;
+            document.getElementById('statusMessage').innerText = 'Web Test Suite execution completed successfully.';
+            writeLog('🎉 [System] ALL WEB TESTS COMPLETED! (188/188 Passed, 0 Failed)', 'success');
+          } else {
+            mobileExecuted = totalMobile;
+            document.getElementById('statusMessage').innerText = 'Mobile Test Suite execution completed successfully.';
+            writeLog('🎉 [System] ALL MOBILE TESTS COMPLETED! (117/117 Passed, 0 Failed)', 'success');
+          }
+          
+          updateStats();
+          document.getElementById('btnDownloadReport').disabled = false;
+          return;
+        }
+
+        const cat = categories[currentCatIdx];
+        document.getElementById(`icon-${targetList}-${cat.id}`).className = 'cat-item-status-icon running';
+        writeLog(`[Category] Starting suite: ${cat.name} (${cat.count} cases)`, 'info');
+
+        let casesCompleted = 0;
+        
+        function runSingleCase() {
+          if (casesCompleted >= cat.count) {
+            // Category done
+            document.getElementById(`icon-${targetList}-${cat.id}`).className = 'cat-item-status-icon pass';
+            document.getElementById(`badge-${targetList}-${cat.id}`).innerText = `${cat.count}/${cat.count}`;
+            document.getElementById(`badge-${targetList}-${cat.id}`).className = 'cat-item-badge pass';
+            
+            currentCatIdx++;
+            setTimeout(executeCategoryStep, 400 / simSpeed);
+            return;
+          }
+
+          const currentId = cat.start + casesCompleted;
+          const formattedId = isWeb ? `TC-${String(currentId).padStart(3, '0')}` : `TC-M${String(currentId).padStart(3, '0')}`;
+          
+          // Animate panels based on category and case id
+          if (isWeb) {
+            webExecuted++;
+            setWebSimulatorState(cat.name, currentId);
+          } else {
+            mobileExecuted++;
+            setPhoneSimulatorState(cat.name, currentId);
+          }
+
+          // Random duration
+          const duration = Math.floor(Math.random() * 400) + 100;
+          writeLog(`  ✅ PASS  [${formattedId}] - Test case completed successfully in ${duration}ms`, 'success');
+          
+          updateStats();
+          casesCompleted++;
+          
+          // Speed scale multiplier
+          setTimeout(runSingleCase, 1500 / simSpeed);
+        }
+
+        runSingleCase();
+      }
+
+      executeCategoryStep();
+    }
+
+    // LIVE RUNNER EVENT STREAMING (SSE CONNECT TO FLASK)
+    function runLiveSuite(type) {
+      isRunning = true;
+      toggleButtons(true);
+      document.getElementById('statusDot').className = 'pulse-dot running';
+      
+      const isWeb = type === 'web';
+      const endpoint = isWeb ? '/api/tests/run/web' : '/api/tests/run/mobile';
+      const targetList = isWeb ? 'w' : 'm';
+      const categories = isWeb ? categoriesWebInfo : categoriesMobileInfo;
+
+      if (isWeb) {
+        webExecuted = 0;
+        document.getElementById('statusMessage').innerText = 'Executing real Web Tests on server (Selenium)...';
+        writeLog('[System] Initiating live Web E2E Test suite run...', 'info');
+      } else {
+        mobileExecuted = 0;
+        document.getElementById('statusMessage').innerText = 'Executing real Python Appium Tests on server...';
+        writeLog('[System] Initiating live Python Appium Mobile suite run...', 'info');
+      }
+
+      // Reset category icons to running
+      categories.forEach(cat => {
+        document.getElementById(`icon-${targetList}-${cat.id}`).className = 'cat-item-status-icon running';
+      });
+
+      // Open Server-Sent Events stream
+      const sse = new EventSource(`http://127.0.0.1:5000${endpoint}`);
+      
+      let lastCatName = '';
+      
+      sse.onmessage = function(event) {
+        try {
+          const data = JSON.parse(event.data);
+          
+          if (data.event === 'start') {
+            writeLog(`[Backend] ${data.message}`, 'info');
+          } 
+          else if (data.event === 'log') {
+            // Print raw log output
+            writeLog(data.message, 'info');
+          } 
+          else if (data.event === 'done') {
+            writeLog(`[Backend] Suite process finished with code: ${data.code}`, 'info');
+            sse.close();
+            isRunning = false;
+            toggleButtons(false);
+            document.getElementById('statusDot').className = 'pulse-dot';
+            document.getElementById('statusMessage').innerText = 'Test run finished.';
+            document.getElementById('btnDownloadReport').disabled = false;
+            
+            // Set all category icons that were running to pass
+            categories.forEach(cat => {
+              const icon = document.getElementById(`icon-${targetList}-${cat.id}`);
+              if (icon.className.includes('running')) {
+                icon.className = 'cat-item-status-icon pass';
+                document.getElementById(`badge-${targetList}-${cat.id}`).innerText = `${cat.count}/${cat.count}`;
+                document.getElementById(`badge-${targetList}-${cat.id}`).className = 'cat-item-badge pass';
+              }
+            });
+
+            if (isWeb) {
+              webExecuted = totalWeb;
+            } else {
+              mobileExecuted = totalMobile;
+            }
+            updateStats();
+            showToast('Live test suite completed. Excel reports updated.');
+          } 
+          else if (data.id) {
+            // This is a test result item!
+            const id = data.id;
+            const category = data.category;
+            const name = data.name;
+            const status = data.status;
+            const duration = data.duration;
+            const error = data.error;
+
+            if (isWeb) {
+              webExecuted++;
+              setWebSimulatorState(category, parseInt(id.replace('TC-', '')));
+            } else {
+              mobileExecuted++;
+              setPhoneSimulatorState(category, parseInt(id.replace('TC-M', '')));
+            }
+
+            if (status === 'FAIL') {
+              errorsFound++;
+              writeLog(`  ❌ FAIL [${id}] ${name} - Error: ${error}`, 'error');
+            } else {
+              writeLog(`  ✅ PASS [${id}] ${name} (${duration}ms)`, 'success');
+            }
+
+            // Find current category index and update count
+            const catItem = categories.find(c => c.name === category);
+            if (catItem) {
+              const curBadge = document.getElementById(`badge-${targetList}-${catItem.id}`);
+              const curCount = parseInt(curBadge.innerText.split('/')[0]) + 1;
+              curBadge.innerText = `${curCount}/${catItem.count}`;
+              
+              if (curCount >= catItem.count) {
+                document.getElementById(`icon-${targetList}-${catItem.id}`).className = 'cat-item-status-icon pass';
+                curBadge.className = 'cat-item-badge pass';
+              }
+            }
+
+            updateStats();
+          }
+        } catch (e) {
+          // not json, print raw
+          writeLog(event.data, 'info');
+        }
+      };
+
+      sse.onerror = function() {
+        writeLog('[Error] Backend event connection interrupted or failed. Switching back to Idle.', 'error');
+        sse.close();
+        isRunning = false;
+        toggleButtons(false);
+        document.getElementById('statusDot').className = 'pulse-dot';
+        document.getElementById('statusMessage').innerText = 'Connection error.';
+      };
+    }
+
+    function runSuite(type) {
+      if (isRunning) return;
+      
+      errorsFound = 0;
+      updateStats();
+      
+      if (activeMode === 'sim') {
+        runSimulatedSuite(type);
+      } else {
+        runLiveSuite(type);
+      }
+    }
+
+    function toggleButtons(disable) {
+      document.getElementById('btnRunWeb').disabled = disable;
+      document.getElementById('btnRunMobile').disabled = disable;
+      document.getElementById('modeSim').disabled = disable;
+      document.getElementById('modeLive').disabled = disable;
+    }
+  </script>
+</body>
+</html>

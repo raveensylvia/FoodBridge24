@@ -1,0 +1,52 @@
+.navbar {
+  background: white;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.logo-food {
+  color: var(--primary-green);
+}
+
+.logo-bridge {
+  color: var(--primary-orange);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-item {
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.nav-item:hover {
+  color: var(--primary-green);
+}
+
+.user-info {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-right: 10px;
+}

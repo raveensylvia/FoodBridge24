@@ -1,0 +1,97 @@
+.hero {
+  padding: 100px 0;
+  background: linear-gradient(135deg, #ffffff 0%, #e8f5e9 100%);
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+  color: #1b5e20;
+}
+
+.hero-content h1 span {
+  color: var(--primary-orange);
+}
+
+.hero-content p {
+  font-size: 18px;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  color: var(--text-muted);
+}
+
+.hero-btns {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.btn-lg {
+  padding: 14px 40px;
+  font-size: 18px;
+}
+
+.btn-outline {
+  border: 2px solid var(--primary-green);
+  color: var(--primary-green);
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: var(--primary-green);
+  color: white;
+}
+
+.roles-section {
+  padding: 80px 0;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 50px;
+  font-size: 32px;
+  color: #1b5e20;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.role-card {
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.role-card:hover {
+  transform: translateY(-10px);
+}
+
+.role-icon {
+  font-size: 50px;
+  margin-bottom: 20px;
+}
+
+.role-card h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.role-card p {
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.role-link {
+  color: var(--primary-green);
+  font-weight: 600;
+}
+
+.footer {
+  padding: 40px 0;
+  text-align: center;
+  background: white;
+  border-top: 1px solid #eee;
+}
